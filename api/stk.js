@@ -1,88 +1,106 @@
-const fetch = require('node-fetch');
+// api/stk.js
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
 
-  try {
-    const { phone_number, amount, reference, platform } = req.body;
+    // CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (!phone_number || !amount || !reference) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // Handle OPTIONS
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
     }
 
-    // HashPay API Configuration
-    const hashpayApiKey = process.env.HASHPAY_API_KEY;
-    const hashpayAccountId = process.env.HASHPAY_ACCOUNT_ID;
-    const hashpayBaseUrl = process.env.HASHPAY_BASE_URL || 'https://api.hashpay.co.ke';
-
-    if (!hashpayApiKey || !hashpayAccountId) {
-      return res.status(500).json({ 
-        error: 'HashPay credentials not configured' 
-      });
+    // Allow POST only
+    if (req.method !== 'POST') {
+        return res.status(405).json({
+            success: false,
+            message: 'Method not allowed'
+        });
     }
 
-    // Clean phone number (remove +, spaces, ensure 254 prefix)
-    const cleanPhone = (phone) => {
-      phone = String(phone).replace(/\s+/g, '').replace(/^\+/, '');
-      if (phone.startsWith('07') || phone.startsWith('01')) {
-        return '254' + phone.substring(1);
-      }
-      if (phone.startsWith('7') || phone.startsWith('1')) {
-        return '254' + phone;
-      }
-      if (phone.startsWith('254')) {
-        return phone;
-      }
-      throw new Error('Invalid phone number format');
-    };
+    try {
 
-    const formattedPhone = cleanPhone(phone_number);
+        const {
+            phone_number,
+            amount,
+            reference
+        } = req.body;
 
-    // HashPay STK Push Request
-    const stkResponse = await fetch(`${hashpayBaseUrl}/api/v1/stkpush`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${hashpayApiKey}`,
-        'Account-Id': hashpayAccountId
-      },
-      body: JSON.stringify({
-        phone: formattedPhone,
-        amount: Math.round(Number(amount)),
-        reference: String(reference).substring(0, 50),
-        callback_url: `${process.env.VERCEL_URL || 'https://your-domain.vercel.app'}/api/verify`,
-        description: `Fuliza Limit Boost - ${reference}`
-      })
-    });
+        // Validation
+        if (!phone_number || !amount || !reference) {
+            return res.status(400).json({
+                success: false,
+                message: 'Missing required fields'
+            });
+        }
 
-    const stkData = await stkResponse.json();
+        // Clean phone
+        let msisdn = String(phone_number)
+            .replace(/\s+/g, '')
+            .replace('+', '');
 
-    if (!stkResponse.ok) {
-      console.error('HashPay STK Error:', stkData);
-      return res.status(400).json({
-        error: stkData.message || 'Failed to initiate STK push',
-        details: stkData
-      });
+        if (msisdn.startsWith('07')) {
+            msisdn = '254' + msisdn.substring(1);
+        }
+
+        if (msisdn.startsWith('01')) {
+            msisdn = '254' + msisdn.substring(1);
+        }
+
+        console.log('Initiating STK:', {
+            msisdn,
+            amount,
+            reference
+        });
+
+        const response = await fetch(
+            'https://api.hashback.co.ke/initiatestk',
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    api_key: process.env.HASHBACK_API_KEY,
+                    account_id: process.env.HASHBACK_ACCOUNT_ID,
+                    amount: String(amount),
+                    msisdn,
+                    reference
+                })
+            }
+        );
+
+        const data = await response.json();
+
+        console.log('HashBack Response:', data);
+
+        // Handle API errors
+        if (!response.ok || !data.success) {
+            return res.status(400).json({
+                success: false,
+                message:
+                    data.message ||
+                    'Failed to initiate STK push',
+                data
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'STK push initiated successfully',
+            checkout_id: data.checkout_id,
+            data
+        });
+
+    } catch (error) {
+
+        console.error('STK ERROR:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Internal server error'
+        });
     }
-
-    // Return success with HashPay's response
-    res.json({
-      success: true,
-      message: 'STK push initiated successfully',
-      requestId: stkData.requestId || stkData.RequestId || stkData.merchantRequestID,
-      reference: reference,
-      phone: formattedPhone,
-      amount: amount,
-      ...stkData
-    });
-
-  } catch (error) {
-    console.error('STK Error:', error);
-    res.status(500).json({
-      error: error.message || 'Internal server error',
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
-    });
-  }
 }
