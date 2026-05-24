@@ -6,7 +6,7 @@ export default function Footer() {
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/1/15/M-PESA_LOGO-01.svg"
           alt="M-Pesa Logo"
-          className="h-5 opacity-60"
+          className="h-8 opacity-60"
         />
         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest self-center">
           Safaricom API Integrated
