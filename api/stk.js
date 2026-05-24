@@ -1,5 +1,3 @@
-import axios from "axios";
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -9,41 +7,43 @@ export default async function handler(req, res) {
     const { phone, amount } = req.body || {};
 
     if (!phone || !amount) {
-      return res.status(400).json({
-        error: "Missing required fields",
-      });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Convert phone if needed (0712... → 254712...)
     const msisdn = phone.startsWith("0")
       ? "254" + phone.slice(1)
       : phone;
 
-    const response = await axios.post(
+    const response = await fetch(
       "https://api.hashback.co.ke/initiatestk",
       {
-        api_key: process.env.HASHPAY_API_KEY,
-        account_id: process.env.HASHPAY_ACCOUNT_ID,
-        amount: String(amount),
-        msisdn,
-        reference: "ORDER_" + Date.now(),
-      },
-      {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({
+          api_key: process.env.HASHPAY_API_KEY,
+          account_id: process.env.HASHPAY_ACCOUNT_ID,
+          amount: String(amount),
+          msisdn,
+          reference: "ORDER_" + Date.now(),
+        }),
       }
     );
 
+    const data = await response.json();
+
     return res.status(200).json({
       success: true,
-      message: "STK pushed successfully",
-      data: response.data,
+      message: "STK request sent",
+      data,
     });
-  } catch (error) {
+  } catch (err) {
+    console.error("STK ERROR:", err);
+
     return res.status(500).json({
       success: false,
-      error: error.response?.data || error.message,
+      error: err.message,
     });
   }
 }
