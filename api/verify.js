@@ -1,109 +1,44 @@
-// api/verify.js
+// Serverless function for payment verification
+// Deploy this to Vercel, Netlify, or Cloudflare Workers
+
+import { HASHPAY_CONFIG } from '../src/utils/constants';
 
 export default async function handler(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-    // CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  try {
+    const { reference } = req.query;
 
-    // Handle OPTIONS
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+    if (!reference) {
+      return res.status(400).json({ error: 'Reference is required' });
     }
 
-    // Allow GET only
-    if (req.method !== 'GET') {
-        return res.status(405).json({
-            success: false,
-            message: 'Method not allowed'
-        });
+    // Hashpay API endpoint
+    const endpoint = HASHPAY_CONFIG.environment === 'production'
+      ? `https://api.hashpay.co.ke/v1/payments/status?reference=${reference}`
+      : `https://sandbox.hashpay.co.ke/v1/payments/status?reference=${reference}`;
+
+    const response = await fetch(endpoint, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${HASHPAY_CONFIG.apiKey}`,
+        'Merchant-Id': HASHPAY_CONFIG.merchantId,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      return res.status(response.status).json({
+        error: error.message || 'Failed to verify payment',
+      });
     }
 
-    try {
-
-        const checkoutid = req.query.reference;
-
-        if (!checkoutid) {
-            return res.status(400).json({
-                success: false,
-                message: 'Missing checkout ID'
-            });
-        }
-
-        console.log('Checking status for:', checkoutid);
-
-        const response = await fetch(
-            'https://api.hashback.co.ke/transactionstatus',
-            {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    api_key: process.env.HASHBACK_API_KEY,
-                    account_id: process.env.HASHBACK_ACCOUNT_ID,
-                    checkoutid
-                })
-            }
-        );
-
-        const data = await response.json();
-
-        console.log('VERIFY RESPONSE:', data);
-
-        // SUCCESSFUL PAYMENT
-        if (
-            data.ResultCode === '0' ||
-            data.ResponseCode === '0'
-        ) {
-
-            return res.status(200).json({
-                success: true,
-                status: 'completed',
-                message: 'Payment successful',
-                receipt:
-                    data.TransactionReceipt ||
-                    data.TransactionID ||
-                    checkoutid,
-                data
-            });
-        }
-
-        // FAILED PAYMENT
-        if (
-            data.ResultCode &&
-            data.ResultCode !== '0'
-        ) {
-
-            return res.status(200).json({
-                success: false,
-                status: 'failed',
-                message:
-                    data.ResultDesc ||
-                    'Payment failed',
-                data
-            });
-        }
-
-        // PENDING
-        return res.status(200).json({
-            success: false,
-            status: 'pending',
-            message: 'Waiting for payment confirmation',
-            data
-        });
-
-    } catch (error) {
-
-        console.error('VERIFY ERROR:', error);
-
-        return res.status(500).json({
-            success: false,
-            status: 'failed',
-            message:
-                error.message ||
-                'Verification failed'
-        });
-    }
+    const data = await response.json();
+    return res.status(200).json(data);
+  } catch (error) {
+    console.error('Verification Error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 }
