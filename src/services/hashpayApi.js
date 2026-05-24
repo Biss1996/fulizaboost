@@ -25,7 +25,7 @@ export async function initiateHashpaySTK(phone, amount, reference) {
         phone_number: phone,
         amount: amount,
         reference: reference,
-        callback_url: `${API_BASE}/api/hashpay/callback`,
+        callback_url: `${API_BASE}/api/callback`,
         description: `Fuliza Limit Boost - Ksh ${amount}`,
       }),
     });

@@ -1,60 +1,54 @@
-// Hashpay callback handler for payment notifications
-// This receives webhook notifications from Hashpay
-
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const payload = req.body;
+    // 🔥 SAFE PARSING (Vercel sometimes sends string body)
+    const payload =
+      typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
-    // Verify the callback is from Hashpay
-    // You should add signature verification here
-    // const signature = req.headers['x-hashpay-signature'];
-    // if (!verifySignature(payload, signature)) {
-    //   return res.status(401).json({ error: 'Invalid signature' });
-    // }
+    console.log("📩 Hashpay Callback Headers:", req.headers);
+    console.log("📩 Hashpay Callback Payload:", payload);
 
-    console.log('Hashpay Callback:', payload);
+    if (!payload) {
+      return res.status(400).json({ error: "Empty payload" });
+    }
 
-    // Handle different callback types
+    // Handle events
     switch (payload.event) {
-      case 'payment.request':
-        // STK push has been sent to the user
-        console.log('STK Push Sent:', payload);
+      case "payment.request":
+        console.log("🟡 STK Sent:", payload);
         break;
 
-      case 'payment.success':
-        // Payment was successful
-        console.log('Payment Successful:', payload);
-        // Update your database here
+      case "payment.success":
+        console.log("🟢 Payment Success:", payload);
+
+        // TODO: update DB here
+        // await updateTransaction(payload.checkout_id, "success");
+
         break;
 
-      case 'payment.failed':
-        // Payment failed
-        console.log('Payment Failed:', payload);
+      case "payment.failed":
+        console.log("🔴 Payment Failed:", payload);
+
+        // TODO: update DB here
+        // await updateTransaction(payload.checkout_id, "failed");
+
         break;
 
       default:
-        console.log('Unknown Event:', payload);
+        console.log("⚠️ Unknown event:", payload.event);
     }
 
-    // Always return 200 to acknowledge receipt
-    return res.status(200).json({ status: 'received' });
+    // IMPORTANT: always ACK quickly
+    return res.status(200).json({ status: "received" });
+
   } catch (error) {
-    console.error('Callback Error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error("❌ Callback Error:", error);
+
+    return res.status(500).json({
+      error: "Internal server error",
+    });
   }
 }
-
-// Helper function for signature verification
-// function verifySignature(payload, signature) {
-//   const crypto = require('crypto');
-//   const secret = process.env.HASHPAY_WEBHOOK_SECRET;
-//   const expectedSignature = crypto
-//     .createHmac('sha256', secret)
-//     .update(JSON.stringify(payload))
-//     .digest('hex');
-//   return expectedSignature === signature;
-// }
