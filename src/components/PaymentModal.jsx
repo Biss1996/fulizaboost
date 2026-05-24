@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { SAFARICOM_GREEN, SUPPORT } from "../utils/constants";
+import { SAFARICOM_GREEN } from "../utils/constants";
 
 export default function PaymentModal({
   isOpen,
@@ -13,6 +13,7 @@ export default function PaymentModal({
   const [idNumber, setIdNumber] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [currentStep, setCurrentStep] = useState("input");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (isOpen && paymentState.phone) {
@@ -20,12 +21,12 @@ export default function PaymentModal({
     }
   }, [isOpen, paymentState.phone]);
 
-  // ✅ FIX: Normalize phone format (07 → 254)
   const formatPhone = (phone) => {
     if (!phone) return "";
     return phone.startsWith("0") ? "254" + phone.slice(1) : phone;
   };
 
+  // 🔥 FIXED FLOW
   const handleInitiate = async () => {
     if (!phoneNumber || !idNumber) {
       alert("Please fill all details");
@@ -33,7 +34,7 @@ export default function PaymentModal({
     }
 
     try {
-      setCurrentStep("response");
+      setLoading(true);
 
       const payload = {
         phone: formatPhone(phoneNumber),
@@ -41,10 +42,21 @@ export default function PaymentModal({
         idNumber,
       };
 
-      await onInitiatePayment(payload);
+      const result = await onInitiatePayment(payload);
+
+      // ❌ DO NOT proceed if STK failed
+      if (!result || result.success === false) {
+        throw new Error(result?.message || "STK failed");
+      }
+
+      // ✅ ONLY move after success
+      setCurrentStep("response");
+
     } catch (error) {
-      alert(error.message);
+      alert(error.message || "Payment failed");
       setCurrentStep("input");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,10 +85,7 @@ export default function PaymentModal({
   if (!isOpen) return null;
 
   return (
-    <div
-      id="paymentModal"
-      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[300] backdrop-blur-sm"
-    >
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[300] backdrop-blur-sm">
       <div className="bg-white rounded-[2rem] overflow-hidden w-full max-w-sm shadow-2xl">
 
         {/* HEADER */}
@@ -95,53 +104,35 @@ export default function PaymentModal({
 
         <div className="p-6">
 
-          {/* INPUT STEP */}
+          {/* INPUT */}
           {currentStep === "input" && (
             <>
-              <div className="bg-green-50 p-4 rounded-xl mb-6">
-                <p className="text-[11px] text-green-800 font-semibold">
-                  Enter ID and Safaricom number to receive STK prompt
-                </p>
-              </div>
-
               <input
-                type="number"
                 value={idNumber}
                 onChange={(e) => setIdNumber(e.target.value)}
                 placeholder="ID Number"
-                className="w-full mb-3 px-4 py-4 bg-slate-50 border rounded-xl font-bold"
-                style={{ borderColor: SAFARICOM_GREEN }}
+                className="w-full mb-3 p-3 border rounded-xl"
               />
 
               <input
-                type="number"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
                 placeholder="07XXXXXXXX"
-                className="w-full mb-6 px-4 py-4 bg-slate-50 border rounded-xl font-bold"
-                style={{ borderColor: SAFARICOM_GREEN }}
+                className="w-full mb-6 p-3 border rounded-xl"
               />
 
-              <div className="flex gap-3">
-                <button
-                  onClick={handleClose}
-                  className="flex-1 py-4 bg-slate-100 text-slate-500 font-bold rounded-xl"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  onClick={handleInitiate}
-                  className="flex-[2] py-4 text-white font-bold rounded-xl"
-                  style={{ backgroundColor: SAFARICOM_GREEN }}
-                >
-                  Pay Ksh {selectedFee || 0}
-                </button>
-              </div>
+              <button
+                onClick={handleInitiate}
+                disabled={loading}
+                className="w-full py-3 text-white rounded-xl"
+                style={{ backgroundColor: SAFARICOM_GREEN }}
+              >
+                {loading ? "Processing..." : `Pay Ksh ${selectedFee || 0}`}
+              </button>
             </>
           )}
 
-          {/* RESPONSE STEP */}
+          {/* RESPONSE */}
           {currentStep === "response" && (
             <div className="py-8 text-center">
 
@@ -152,48 +143,38 @@ export default function PaymentModal({
               </h4>
 
               <p className="text-sm text-slate-500 mt-2">
-                Check your phone and enter PIN
+                Check your phone
               </p>
 
-              <div className="bg-slate-50 p-4 rounded-2xl mt-5 text-left">
+              <div className="mt-5 text-left bg-slate-50 p-4 rounded-xl">
 
-                <div className="flex justify-between py-2 border-b">
-                  <span className="text-xs font-bold text-slate-400">Amount</span>
-                  <span className="font-bold text-green-700">
-                    Ksh {selectedFee || 0}
-                  </span>
+                <div className="flex justify-between">
+                  <span>Amount</span>
+                  <span>Ksh {selectedFee}</span>
                 </div>
 
-                <div className="flex justify-between py-2 border-b">
-                  <span className="text-xs font-bold text-slate-400">Phone</span>
-                  <span className="font-bold text-slate-700">
-                    {paymentState.phone || "—"}
-                  </span>
+                <div className="flex justify-between">
+                  <span>Phone</span>
+                  <span>{paymentState.phone || formatPhone(phoneNumber)}</span>
                 </div>
 
-                <div className="flex justify-between py-2">
-                  <span className="text-xs font-bold text-slate-400">Status</span>
-                  <span className="font-bold text-slate-700">
-                    {paymentState.status || "Pending"}
-                  </span>
+                <div className="flex justify-between">
+                  <span>Status</span>
+                  <span>{paymentState.status}</span>
                 </div>
 
               </div>
 
               <button
                 onClick={handleCheckPayment}
-                className="mt-6 w-full bg-green-600 text-white p-3 rounded-xl font-bold"
+                className="mt-5 w-full bg-green-600 text-white p-3 rounded-xl"
               >
                 I Have Paid
-              </button>
-
-              <button onClick={handleClose} className="mt-3 text-sm">
-                Cancel
               </button>
             </div>
           )}
 
-          {/* SUCCESS STEP */}
+          {/* SUCCESS */}
           {currentStep === "success" && (
             <div className="text-center py-6">
 
