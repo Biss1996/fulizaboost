@@ -20,7 +20,7 @@ export default function LandingPage({ onStartVerification }) {
       >
         <div className="flex justify-center mb-4">
           <div
-            className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center"
+            className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center"
           >
             <i
               className="fas fa-user-shield text-safaricom text-3xl"

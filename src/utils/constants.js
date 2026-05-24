@@ -15,7 +15,7 @@ export const HASHPAY_CONFIG = {
 
 // Fuliza Limits Data
 export const LIMITS_DATA = [
-  { amt: 5000, fee: 150, tags: [], type: 'standard' },
+  { amt: 5000, fee: 200, tags: [], type: 'standard' },
   { amt: 10000, fee: 350, tags: [], type: 'standard' },
   { amt: 15000, fee: 530, tags: [], type: 'standard' },
   { amt: 20000, fee: 700, tags: [], type: 'standard' },
