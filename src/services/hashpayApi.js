@@ -1,151 +1,140 @@
-import { HASHPAY_CONFIG, API_BASE } from '../utils/constants';
+import { HASHPAY_CONFIG, API_BASE } from "../utils/constants";
 
 /**
  * Initialize Hashpay STK Push
- * @param {string} phone - Phone number in 254 format
- * @param {number} amount - Amount to charge
- * @param {string} reference - Unique reference for the transaction
- * @returns {Promise<Object>} - Transaction response
  */
 export async function initiateHashpaySTK(phone, amount, reference) {
   try {
-    // Hashpay API endpoint
-    const endpoint = HASHPAY_CONFIG.environment === 'production'
-      ? 'https://api.hashpay.co.ke/v1/payments/stkpush'
-      : 'https://sandbox.hashpay.co.ke/v1/payments/stkpush';
+    const endpoint =
+      HASHPAY_CONFIG.environment === "production"
+        ? "https://api.hashpay.co.ke/v1/payments/stkpush"
+        : "https://sandbox.hashpay.co.ke/v1/payments/stkpush";
 
     const response = await fetch(endpoint, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${HASHPAY_CONFIG.apiKey}`,
-        'Merchant-Id': HASHPAY_CONFIG.merchantId,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${HASHPAY_CONFIG.apiKey}`,
+        "Merchant-Id": HASHPAY_CONFIG.merchantId,
       },
       body: JSON.stringify({
         phone_number: phone,
-        amount: amount,
-        reference: reference,
+        amount: Number(amount),
+        reference,
         callback_url: `${API_BASE}/api/callback`,
         description: `Fuliza Limit Boost - Ksh ${amount}`,
       }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Failed to initiate STK push');
+      throw new Error(data.message || "Failed to initiate STK push");
     }
 
-    return await response.json();
+    return data;
   } catch (error) {
-    console.error('Hashpay STK Error:', error);
+    console.error("Hashpay STK Error:", error);
     throw error;
   }
 }
 
 /**
  * Verify payment status with Hashpay
- * @param {string} reference - Transaction reference
- * @returns {Promise<Object>} - Payment status
  */
 export async function verifyHashpayPayment(reference) {
   try {
-    const endpoint = HASHPAY_CONFIG.environment === 'production'
-      ? `https://api.hashpay.co.ke/v1/payments/status?reference=${reference}`
-      : `https://sandbox.hashpay.co.ke/v1/payments/status?reference=${reference}`;
+    const endpoint =
+      HASHPAY_CONFIG.environment === "production"
+        ? `https://api.hashpay.co.ke/v1/payments/status?reference=${reference}`
+        : `https://sandbox.hashpay.co.ke/v1/payments/status?reference=${reference}`;
 
     const response = await fetch(endpoint, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Authorization': `Bearer ${HASHPAY_CONFIG.apiKey}`,
-        'Merchant-Id': HASHPAY_CONFIG.merchantId,
+        Authorization: `Bearer ${HASHPAY_CONFIG.apiKey}`,
+        "Merchant-Id": HASHPAY_CONFIG.merchantId,
       },
     });
 
+    const data = await response.json().catch(() => ({}));
+
     if (!response.ok) {
-      const text = await response.text();
-
-let data = {};
-
-try {
-  data = text ? JSON.parse(text) : {};
-} catch {
-  data = { error: 'Invalid JSON response' };
-}
-      throw new Error(error.message || 'Failed to verify payment');
+      throw new Error(data.message || "Failed to verify payment");
     }
 
-    return await response.json();
+    return data;
   } catch (error) {
-    console.error('Hashpay Verification Error:', error);
+    console.error("Hashpay Verification Error:", error);
     throw error;
   }
 }
 
 /**
- * Local API proxy for serverless deployment
- * This would be implemented in your serverless functions
+ * Local API proxy for STK (Vercel backend)
  */
 export async function localSTKPush(phone, amount, reference) {
   try {
-    const response = await fetch(`${API_BASE}/api/stk`, {
-      method: 'POST',
+    const response = await fetch(`/api/stk`, {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        phone_number: phone,
-        amount: amount,
-        reference: reference,
+        phone,
+        amount,
+        reference,
       }),
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'STK failed');
+      throw new Error(data.error || "STK failed");
     }
 
-    return await response.json();
+    return data;
   } catch (error) {
-    console.error('Local STK Error:', error);
+    console.error("Local STK Error:", error);
     throw error;
   }
 }
 
+/**
+ * Local verification (YOU MUST create /api/status if using this)
+ */
 export async function localVerifyPayment(reference) {
   try {
-const response = await fetch('/api/stk', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    phone_number: phone,
-    amount,
-    reference,
-  }),
-})
-    return await response.json();
+    const response = await fetch(`/api/status?reference=${reference}`, {
+      method: "GET",
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || "Verification failed");
+    }
+
+    return data;
   } catch (error) {
-    console.error('Local Verification Error:', error);
+    console.error("Local Verification Error:", error);
     throw error;
   }
 }
 
 /**
  * Clean phone number to 254 format
- * @param {string} phone - Phone number
- * @returns {string} - Cleaned phone number
  */
 export function cleanPhone(phone) {
-  if (!phone) return phone;
+  if (!phone) return "";
 
-  let cleaned = phone.replace(/\s+/g, '');
+  let cleaned = phone.replace(/\s+/g, "");
 
-  if (cleaned.startsWith('07') || cleaned.startsWith('01')) {
-    return '254' + cleaned.substring(1);
+  if (cleaned.startsWith("07") || cleaned.startsWith("01")) {
+    return "254" + cleaned.substring(1);
   }
 
-  if (cleaned.startsWith('254')) {
+  if (cleaned.startsWith("254")) {
     return cleaned;
   }
 
@@ -154,8 +143,12 @@ export function cleanPhone(phone) {
 
 /**
  * Generate unique reference
- * @returns {string} - Unique reference
  */
 export function generateReference() {
-  return 'FULIZA-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+  return (
+    "FULIZA-" +
+    Date.now() +
+    "-" +
+    Math.floor(Math.random() * 1000)
+  );
 }

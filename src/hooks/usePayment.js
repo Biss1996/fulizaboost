@@ -1,11 +1,11 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from "react";
 import {
   localSTKPush,
   localVerifyPayment,
   generateReference,
-  cleanPhone
-} from '../services/hashpayApi';
-import { PAYMENT_STATUS } from '../utils/constants';
+  cleanPhone,
+} from "../services/hashpayApi";
+import { PAYMENT_STATUS } from "../utils/constants";
 
 export function usePayment() {
   const [paymentState, setPaymentState] = useState({
@@ -17,27 +17,25 @@ export function usePayment() {
     amount: 0,
   });
 
-  const [paymentPoller, setPaymentPoller] = useState(null);
   const [paymentBusy, setPaymentBusy] = useState(false);
+  const pollRef = useRef(null);
 
-  // Initiate payment with Hashpay STK
-  const initiatePayment = useCallback(async (phone, amount, idNumber) => {
-    if (!phone || !amount) {
-      throw new Error('Phone and amount are required');
-    }
+  // 🔥 INITIATE PAYMENT
+  const initiatePayment = useCallback(
+    async (phone, amount) => {
+      if (!phone || !amount) {
+        throw new Error("Phone and amount are required");
+      }
 
-    if (paymentBusy) {
-      throw new Error('Payment already in progress');
-    }
+      if (paymentBusy) {
+        throw new Error("Payment already in progress");
+      }
 
-    setPaymentBusy(true);
-    setPaymentState(prev => ({ ...prev, isLoading: true, error: null }));
+      setPaymentBusy(true);
 
-    try {
       const cleanedPhone = cleanPhone(phone);
       const reference = generateReference();
 
-      // Store initial state
       setPaymentState({
         isLoading: true,
         error: null,
@@ -47,95 +45,100 @@ export function usePayment() {
         amount,
       });
 
-      // Call local API which will proxy to Hashpay
-      const response = await localSTKPush(cleanedPhone, amount, reference);
-
-      setPaymentState(prev => ({
-        ...prev,
-        status: PAYMENT_STATUS.PENDING,
-        isLoading: false,
-      }));
-
-      // Start polling for payment status
-      startPaymentPolling(reference, cleanedPhone, amount);
-
-      return { success: true, reference };
-    } catch (error) {
-      setPaymentState(prev => ({
-        ...prev,
-        isLoading: false,
-        error: error.message,
-        status: PAYMENT_STATUS.FAILED,
-      }));
-      setPaymentBusy(false);
-      throw error;
-    }
-  }, [paymentBusy]);
-
-  // Start polling for payment status
-  const startPaymentPolling = useCallback((reference, phone, amount) => {
-    clearInterval(paymentPoller);
-
-    const poller = setInterval(async () => {
       try {
-        const result = await verifyPaymentStatus(reference);
+        await localSTKPush(cleanedPhone, amount, reference);
 
-        if (result === PAYMENT_STATUS.COMPLETED || result === PAYMENT_STATUS.FAILED) {
-          clearInterval(poller);
-          setPaymentPoller(null);
-        }
+        setPaymentState((prev) => ({
+          ...prev,
+          status: PAYMENT_STATUS.PENDING,
+          isLoading: false,
+        }));
+
+        startPaymentPolling(reference);
+
+        return { success: true, reference };
       } catch (error) {
-        console.error('Polling error:', error);
+        setPaymentState((prev) => ({
+          ...prev,
+          isLoading: false,
+          error: error.message,
+          status: PAYMENT_STATUS.FAILED,
+        }));
+
+        setPaymentBusy(false);
+        throw error;
+      }
+    },
+    [paymentBusy]
+  );
+
+  // 🔥 POLLING (FIXED)
+  const startPaymentPolling = useCallback((reference) => {
+    if (pollRef.current) clearInterval(pollRef.current);
+
+    pollRef.current = setInterval(async () => {
+      try {
+        const data = await localVerifyPayment(reference);
+
+        const status = data.status;
+
+        // 🔥 UPDATE UI EVERY POLL
+        if (status === "completed" || status === "success") {
+          setPaymentState((prev) => ({
+            ...prev,
+            status: PAYMENT_STATUS.COMPLETED,
+            isLoading: false,
+          }));
+
+          setPaymentBusy(false);
+          clearInterval(pollRef.current);
+          pollRef.current = null;
+          return;
+        }
+
+        if (status === "failed") {
+          setPaymentState((prev) => ({
+            ...prev,
+            status: PAYMENT_STATUS.FAILED,
+            isLoading: false,
+            error: "Payment failed",
+          }));
+
+          setPaymentBusy(false);
+          clearInterval(pollRef.current);
+          pollRef.current = null;
+          return;
+        }
+
+        // still pending → keep UI updated
+        setPaymentState((prev) => ({
+          ...prev,
+          status: PAYMENT_STATUS.PENDING,
+        }));
+      } catch (error) {
+        console.error("Polling error:", error);
       }
     }, 4000);
-
-    setPaymentPoller(poller);
-  }, [paymentPoller]);
-
-  // Verify payment status
-  const verifyPaymentStatus = useCallback(async (reference) => {
-    try {
-      const data = await localVerifyPayment(reference);
-
-      if (data.status === 'success' || data.status === 'completed') {
-        setPaymentState(prev => ({
-          ...prev,
-          status: PAYMENT_STATUS.COMPLETED,
-          isLoading: false,
-        }));
-        setPaymentBusy(false);
-        return PAYMENT_STATUS.COMPLETED;
-      }
-
-      if (data.status === 'failed') {
-        setPaymentState(prev => ({
-          ...prev,
-          status: PAYMENT_STATUS.FAILED,
-          isLoading: false,
-          error: 'Payment failed',
-        }));
-        setPaymentBusy(false);
-        return PAYMENT_STATUS.FAILED;
-      }
-
-      return PAYMENT_STATUS.PENDING;
-    } catch (error) {
-      console.error('Verification error:', error);
-      return PAYMENT_STATUS.PENDING;
-    }
   }, []);
 
-  // Manual check payment
+  // 🔥 MANUAL CHECK
   const checkPaymentNow = useCallback(async () => {
     if (!paymentState.reference) return;
-    return await verifyPaymentStatus(paymentState.reference);
-  }, [paymentState.reference, verifyPaymentStatus]);
 
-  // Close payment modal
+    const data = await localVerifyPayment(paymentState.reference);
+
+    return data.status;
+  }, [paymentState.reference]);
+
+  // 🔥 CLOSE CLEANUP
   const closePayment = useCallback(() => {
-    clearInterval(paymentPoller);
-    setPaymentPoller(null);
+    if (pollRef.current) {
+      clearInterval(pollRef.current);
+      pollRef.current = null;
+    }
+
     setPaymentBusy(false);
+
     setPaymentState({
       isLoading: false,
       error: null,
@@ -144,20 +147,19 @@ export function usePayment() {
       phone: null,
       amount: 0,
     });
-  }, [paymentPoller]);
+  }, []);
 
-  // Cleanup on unmount
+  // 🔥 SAFETY CLEANUP
   useEffect(() => {
     return () => {
-      clearInterval(paymentPoller);
+      if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [paymentPoller]);
+  }, []);
 
   return {
     paymentState,
     paymentBusy,
     initiatePayment,
-    verifyPaymentStatus,
     checkPaymentNow,
     closePayment,
   };
