@@ -38,13 +38,23 @@ export default async function handler(req, res) {
           process.env.VERCEL_URL
             ? `https://${process.env.VERCEL_URL}`
             : 'http://localhost:5173'
-        }/api/hashpay/callback`,
+        }/api/callback`,
 
         description: `Fuliza Limit Boost - Ksh ${amount}`,
       }),
     });
 
-    const data = await response.json();
+    const text = await response.text();
+
+let data = {};
+
+try {
+  data = text ? JSON.parse(text) : {};
+} catch {
+  data = {
+    raw: text,
+  };
+}
 
     if (!response.ok) {
       return res.status(response.status).json({
